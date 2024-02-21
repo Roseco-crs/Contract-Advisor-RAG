@@ -162,3 +162,5 @@ cython_debug/
 
 # Virtual environment 
 w11_rag/
+data/
+embeddings_cache/

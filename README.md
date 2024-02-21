@@ -9,3 +9,7 @@ Develop the next-generation contract AI, is the focus of Lizzy AI, an early-stag
 
 So, My task is as follows: build, evaluate, and improve a RAG system for Contract Q&A (chatting with a contract and asking questions about the contract).
 
+### run project
+
+`streamlit run utils/rag.py`
+
