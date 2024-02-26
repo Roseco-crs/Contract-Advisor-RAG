@@ -4,6 +4,12 @@ from MyRagFunctions import MyRagFunctions
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.storage import LocalFileStore
 from langchain import OpenAI, VectorDBQA
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationChain
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chains import RetrievalQA
+from langchain_community.llms import OpenAI
 
 
 # Create an instance of MyRagFunctions
@@ -11,7 +17,6 @@ RagFunctions = MyRagFunctions()
 
 store = LocalFileStore("./embeddings_cache")
 # store = InMemoryByteStore()
-
 
 
 def get_cached_embedding():
@@ -25,6 +30,29 @@ def get_cached_embedding():
     return cache_embedding
 
 
+def conversation_chain(vectorstore):
+    llm = ChatOpenAI(temperature=0.0)
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    conversation_chain= ConversationalRetrievalChain.from_llm(
+        llm = llm,
+        memory = memory,
+        retriever = vectorstore.as_retriever(),
+        )
+    return conversation_chain
+
+def qNa_chain(vectorsotre):
+    llm = ChatOpenAI(temperature=0.0)
+    qa_stuff = RetrievalQA.from_chain_type(
+        llm = llm,
+        chain_type = "stuff",
+        retriever = vectorsotre.as_retriever(),
+        verbose = False,
+    )
+    return qa_stuff
+     
+
+
+
 # Main Function
 def main():
     load_dotenv()
@@ -36,15 +64,12 @@ def main():
     st.markdown("## Powerfull Contract Advisor AI :law")
     external_data = st.file_uploader(" Upload your contract documents", accept_multiple_files= True)
     if st.button("Retrieval"):
-        with st.spinner("Processing"):
+        with st.spinner("Processing the documents..."):
             # get contract documents
-            #doc = get_text_from_miscrosoft_doc(external_data)
             doc = RagFunctions.get_text_from_pdf(external_data)
-            #st.write(doc)
 
             # chunk the text
             chunk = RagFunctions.chunk_text(doc)
-            #st.write(chunk[:3])
 
             # get embedding function or embedding
             openai_embedding = RagFunctions.get_OpenAIEmbeddings() 
@@ -55,22 +80,22 @@ def main():
             #faiss_vectorstore_db = RagFunctions.get_faiss_vectorstore(chunk, cache_embedding)
     
             # get_chroma_vectorstore
-            #chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, openai_embedding)
-            chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, cache_embedding)
-            #c = chroma_vectorstore_db.similarity_search("What is the best contract", k=4)
-            #st.write(c)
+            chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, openai_embedding)
+            #chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, cache_embedding) 
 
-        qa = VectorDBQA.from_chain_type(llm=OpenAI(), chain_type="stuff", vectorstore = chroma_vectorstore_db)
-        st.markdown("## Q&A")
-        query = st.text_input("Type your question")
-        answer = qa.run(query)
-        st.write(answer)
-
-
-
-
-
-
+            conversation= conversation_chain(chroma_vectorstore_db)
+            qa_chain = qNa_chain(chroma_vectorstore_db)
+            st.success("Documents processed successfully!")
+        
+    st.markdown("## Q&A")
+    question = st.text_input("Type your question")
+    if question and external_data:
+        with st.spinner("Generating answer..."):
+            try:
+                result = qa_chain.invoke(question)
+                st.write(" Answer: ", result["result"])
+            except Exception as e:
+                st.error(f"There is an error in the processing of the question: {e}")
 
 
 if __name__ == "__main__":

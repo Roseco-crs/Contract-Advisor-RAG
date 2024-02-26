@@ -8,12 +8,12 @@ from langchain_community.embeddings.sentence_transformer import SentenceTransfor
 from langchain_community.vectorstores import Chroma
 from langchain_community.vectorstores import Weaviate
 from langchain_community.vectorstores import FAISS
-# import os
-# from dotenv import load_dotenv
+import os
+from dotenv import load_dotenv, find_dotenv
 
 
-# load_dotenv()
-# os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+_ = load_dotenv(find_dotenv())
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 
 
