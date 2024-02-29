@@ -82,7 +82,7 @@ def main():
     with st.sidebar:
         pass
     
-        st.markdown("## Your AI Contract Assistant :law")
+        st.markdown("## Upload Documents :law")
         external_data = st.file_uploader(" Upload your contract documents", accept_multiple_files= True)
         if st.button("Retrieval"):
             with st.spinner("Processing the documents..."):
@@ -111,7 +111,7 @@ def main():
                 st.session_state.conversation= conversation_chain(chroma_vectorstore_db)
     
 
-    st.header("Q&A")
+    st.header("Your AI Contract Assistant")
     user_question = st.text_input("Ask a question to our AI Contract Advisor  ")
     if user_question:
         handle_userinput(user_question)
