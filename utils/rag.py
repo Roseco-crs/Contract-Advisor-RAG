@@ -10,6 +10,7 @@ from langchain.chains import ConversationChain
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chains import RetrievalQA
 from langchain_community.llms import OpenAI
+from htmlTemplates import css, bot_template, user_template
 
 
 # Create an instance of MyRagFunctions
@@ -51,6 +52,17 @@ def qNa_chain(vectorsotre):
     return qa_stuff
      
 
+def handle_userinput(user_question):
+    response = st.session_state.conversation({'question': user_question})
+    st.session_state.chat_history = response['chat_history']
+
+    for i, message in enumerate(st.session_state.chat_history):
+        if i % 2 == 0:
+            st.write(user_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
+        else:
+            st.write(bot_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
+
+
 
 
 # Main Function
@@ -58,44 +70,61 @@ def main():
     load_dotenv()
     st.set_page_config(page_title="Powerfull Contract Advisor AI", page_icon= ":brain")
 
+    st.write(css, unsafe_allow_html=True)
+
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None
+
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = None
+
+
     with st.sidebar:
         pass
     
-    st.markdown("## Powerfull Contract Advisor AI :law")
-    external_data = st.file_uploader(" Upload your contract documents", accept_multiple_files= True)
-    if st.button("Retrieval"):
-        with st.spinner("Processing the documents..."):
-            # get contract documents
-            doc = RagFunctions.get_text_from_pdf(external_data)
+        st.markdown("## Your AI Contract Assistant :law")
+        external_data = st.file_uploader(" Upload your contract documents", accept_multiple_files= True)
+        if st.button("Retrieval"):
+            with st.spinner("Processing the documents..."):
+                # get contract documents
+                doc = RagFunctions.get_text_from_pdf(external_data)
 
-            # chunk the text
-            chunk = RagFunctions.chunk_text(doc)
+                # chunk the text
+                chunk = RagFunctions.chunk_text(doc)
 
-            # get embedding function or embedding
-            openai_embedding = RagFunctions.get_OpenAIEmbeddings() 
-            cache_embedding = get_cached_embedding()
-            open_embedding = RagFunctions.get_open_embedding()         # Has an issue. 
+                # get embedding function or embedding
+                openai_embedding = RagFunctions.get_OpenAIEmbeddings() 
+                cache_embedding = get_cached_embedding()
+                open_embedding = RagFunctions.get_open_embedding()         # Has an issue. 
 
-            # get_faiss_vectorstore 
-            #faiss_vectorstore_db = RagFunctions.get_faiss_vectorstore(chunk, cache_embedding)
-    
-            # get_chroma_vectorstore
-            chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, openai_embedding)
-            #chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, cache_embedding) 
-
-            conversation= conversation_chain(chroma_vectorstore_db)
-            qa_chain = qNa_chain(chroma_vectorstore_db)
-            st.success("Documents processed successfully!")
+                # get_faiss_vectorstore 
+                #faiss_vectorstore_db = RagFunctions.get_faiss_vectorstore(chunk, cache_embedding)
         
-    st.markdown("## Q&A")
-    question = st.text_input("Type your question")
-    if question and external_data:
-        with st.spinner("Generating answer..."):
-            try:
-                result = qa_chain.invoke(question)
-                st.write(" Answer: ", result["result"])
-            except Exception as e:
-                st.error(f"There is an error in the processing of the question: {e}")
+                # get_chroma_vectorstore
+                chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, openai_embedding)
+                #chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, cache_embedding) 
+
+                conversation= conversation_chain(chroma_vectorstore_db)
+                qa_chain = qNa_chain(chroma_vectorstore_db)
+                st.success("Documents processed successfully!")
+
+                st.session_state.conversation= conversation_chain(chroma_vectorstore_db)
+    
+
+    st.header("Q&A")
+    user_question = st.text_input("Ask a question to our AI Contract Advisor  ")
+    if user_question:
+        handle_userinput(user_question)
+        
+    # st.markdown("## Q&A")
+    # question = st.text_input("Type your question")
+    # if question and external_data:
+    #     with st.spinner("Generating answer..."):
+    #         try:
+    #             result = qa_chain.invoke(question)
+    #             st.write(" Answer: ", result["result"])
+    #         except Exception as e:
+    #             st.error(f"There is an error in the processing of the question: {e}")
 
 
 if __name__ == "__main__":
