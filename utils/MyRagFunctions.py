@@ -12,14 +12,10 @@ import os
 from dotenv import load_dotenv, find_dotenv
 
 
-_ = load_dotenv(find_dotenv())
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-
-
 
 class MyRagFunctions:
     def __init__(self):
-        pass
+        load_dotenv(find_dotenv())
     
 
     def get_text_from_txtFile(self, files):
@@ -92,6 +88,9 @@ class MyRagFunctions:
         return chunk
     
 
+    # def parent_child_chunk(self)
+    
+
     def get_OpenAIEmbeddings(self):
         """
         Embedding
@@ -137,16 +136,12 @@ class MyRagFunctions:
         :embedding_method: embedding method
         :return: vector database that contains embedded chunks of text
         """
-        # vectoestore = Chroma.from_documents(
-        #     documents = text_chunks,
-        #     embedding = embeddings_method,
-        # )
 
-        vectoestore = Chroma.from_texts(
+        vectorstore = Chroma.from_texts(
             text_chunks, 
             embedding_method,
         )       
-        return vectoestore
+        return vectorstore
     
     def get_weaviate_vectorstore(self, text_chunks, embedding_method):
         vectorstore = Weaviate.from_texts(
