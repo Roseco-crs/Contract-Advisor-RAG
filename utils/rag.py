@@ -11,10 +11,12 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chains import RetrievalQA
 from langchain_community.llms import OpenAI
 from htmlTemplates import css, bot_template, user_template
+from Advanced_Retriever import AdvancedRetriever
 
 
 # Create an instance of MyRagFunctions
 RagFunctions = MyRagFunctions()
+AdRetriever = AdvancedRetriever()
 
 store = LocalFileStore("./embeddings_cache")
 # store = InMemoryByteStore()
@@ -103,6 +105,12 @@ def main():
                 # get_chroma_vectorstore
                 chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, openai_embedding)
                 #chroma_vectorstore_db = RagFunctions.get_chroma_vectorstore(chunk, cache_embedding) 
+
+
+
+
+
+
 
                 conversation= conversation_chain(chroma_vectorstore_db)
                 qa_chain = qNa_chain(chroma_vectorstore_db)
