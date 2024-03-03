@@ -9,7 +9,19 @@ Develop the next-generation contract AI, is the focus of Lizzy AI, an early-stag
 
 So, My task is as follows: build, evaluate, and improve a RAG system for Contract Q&A (chatting with a contract and asking questions about the contract).
 
-### run project
+### Usage
+1. Clone the repository
+   `git clone https://github.com/Roseco-crs/Contract-Advisor-RAG.git`
+   
+2. Move into Contract-Advisor-RAG
+   `cd Contract-Advisor-RAG/`
 
-`streamlit run utils/rag.py`
+3. Run the project
+   `streamlit run utils/rag.py`
+
+### Contributors
+- Coffi Rodolphe Segbedji
+
+### Acknowledgements
+We thank Lizzy AI and 10 Academy for giving us the opportunity to work on this project.
 
