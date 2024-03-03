@@ -11,12 +11,15 @@ So, My task is as follows: build, evaluate, and improve a RAG system for Contrac
 
 ### Usage
 1. Clone the repository
+   
    `git clone https://github.com/Roseco-crs/Contract-Advisor-RAG.git`
    
-2. Move into Contract-Advisor-RAG
+3. Move into Contract-Advisor-RAG
+
    `cd Contract-Advisor-RAG/`
 
-3. Run the project
+5. Run the project
+
    `streamlit run utils/rag.py`
 
 ### Contributors
